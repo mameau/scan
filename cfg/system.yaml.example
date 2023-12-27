@@ -3,11 +3,11 @@ display_name: system-display-name
 format: format
 exec: path-to-application
 ini: path-to-ini
-rom_dir: %MAME_BASE_DIR_SOFT_ROMS%/%SYSTEM_NAME%
-art_dir: %MAME_BASE_DIR_SOFT_ART%/%SYSTEM_NAME%
+rom_dir: MAME_BASE_DIR_SOFT_ROMS/SYSTEM_NAME
+art_dir: MAME_BASE_DIR_SOFT_ART/SYSTEM_NAME
 data_dir: system-data-dir
 working_dir: system-working-dir
 extensions: extension-used-by-mister-project
 mister_core: mister-core
 extension: system-extension
-cmd: %GAME_EXEC% %SYSTEM_NAME% -cart %ROM_NAME%
+cmd: GAME_EXEC SYSTEM_NAME -cart ROM_NAME
