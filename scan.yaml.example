@@ -1,0 +1,9 @@
+---
+last_system_index: 0
+last_rom_index: 0
+mame_base_dir_roms: /path/to/mame/roms
+mame_base_dir_disk: /path/to/mame/chds
+mame_base_dir_art: /path/to/mame/artwork
+mame_base_dir_soft_roms: /path/to/mame/softlist/roms
+mame_base_dir_soft_disk: /path/to/mame/softlist/chds
+mame_base_dir_soft_art: /path/to/mame/softlist/artwork

@@ -1,0 +1,23 @@
+#!/bin/bash
+
+
+SOFTLISTS=(
+32x
+gameboy
+gba
+megadriv
+nes
+pce
+psx
+sg1000
+sms
+snes
+tg16
+wscolor
+wswan
+)
+
+for SOFTLIST in ${SOFTLISTS[@]}
+do
+	./scan.py --system mamesl --sl $SOFTLIST
+done
