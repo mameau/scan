@@ -7,3 +7,4 @@ mame_base_dir_art: /path/to/mame/artwork
 mame_base_dir_soft_roms: /path/to/mame/softlist/roms
 mame_base_dir_soft_disk: /path/to/mame/softlist/chds
 mame_base_dir_soft_art: /path/to/mame/softlist/artwork
+mister_mount: /mnt/sshfs/mister

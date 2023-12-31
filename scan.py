@@ -4,71 +4,99 @@ import os
 import argparse
 
 # libs
-import lib.mame as mame
-import lib.mamesl as mamesl
-#import lib.pico8 as pico8
-#import lib.pegasus as pegasus
-import lib.config as config
+from lib.mame import MAME
+from lib.mamesl import MAMESL
+from lib.json import JSON
+from lib.pico8 import PICO8
+#from lib.mister import Mister
+from lib.pegasus import Pegasus
+from lib.config import Config
 
-def init():
-    config_paths = ['cfg','_cache']
-    for path in config_paths:
-        abs = os.path.join(config.Config().config_dir, path)
-        if not os.path.exists(abs):
-            os.mkdir(abs)
+systems = ['mame', 'mamesl','pico8']
+output_modes = ['mister', 'pegasus','json','yaml']
+config_paths = ['cfg','_cache']
 
 def main(args):
     system = args.system
     sl = args.sl
     mode = args.mode
+    output_mode = args.output_mode
 
-    init()
-    if system is None:
-        print("need a system")
+    config = Config()
+    config.read_config_main()
+    mainconfig = config.config_main
+
+    output = ""
+
+    for path in config_paths:
+        abs = os.path.join(config.config_dir, path)
+        if not os.path.exists(abs):
+            os.mkdir(abs)
+
+    ### OUTPUT modes
+
+    if output_mode in output_modes:
+        if  output_mode == "mister":
+            print("MisterFPGA supported started")
+            mister = Mister()
+            # local dir mode
+            mountpoint = os.path.join(mainconfig['mister_mount'], mister.sdroot, sysconfig['mister_core'])
+            mister.mkdir(mountpoint)
+            client = client_local.ClientDIR(mountpoint)
+            a = archive.Archive()
+            a.extract(dataset, client)
+            output = Mister()
+        elif output_mode == "pegasus":
+            print("Pegasus Frontend supported started")
+            output = Pegasus()
+        elif output_mode == "yaml":
+            print("YAML is not supported yet")
+            return
+        else:
+            # JSON
+            print("JSON supported started")
+            output = JSON()
+    else:
+        print(f"Unsupported output mode: {output_mode}")
 
     ### MAME
     if system == "mame":
-        mame.MAME().scan()
+        mame = MAME()
+        mame.scan()
 
     ### PICO8
-    if system == "pico8":
-        pico8.PICO8().scan()
+    elif system == "pico8":
+        pico8 = PICO8()
+        sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % system)
+        sysconfig = config.read_config_system(sysfile)
+        dataset = pico8.scan(sysconfig)
 
     ### MAME Software Lists
-    if system == "mamesl":
+    elif system == "mamesl":
         if not sl:
             print("--sl not passed")
             return
-
-        sysfile = os.path.join(config.Config().config_dir,'cfg','%s.yaml' % sl)
-        sysconfig = config.Config().read_config_system(sysfile)
-
-        msl  = mamesl.MAMESL()
-        dataset = msl.scan(sysconfig, mode)
-
-        if  args.mister:
-            mstr = mister.Mister()
-
-            # local dir mode
-            mountpoint = os.path.join('/mnt/sshfs/mister', mstr.sdroot, sysconfig['mister_core'])
-            mstr.mkdir(mountpoint)
-            client = client_local.ClientDIR(mountpoint)
-
-            a = archive.Archive()
-            a.extract(dataset, client)
-        if args.pegasus_fe:
-            print("blah")
+        mamesl = MAMESL()
+        mamesl.sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % sl)
+        sysconfig = config.read_config_system(mamesl.sysfile)
+        dataset = mamesl.scan(sysconfig, mode)
+        # override system for output
+        system = sl
 
     else:
         print("Unsupported system")
+
+    #push dataset to output module
+    output.collection(sysconfig)
+    output.entry(dataset)
+    output.dump(system)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Scan a system')
     parser.add_argument('--system', required=True, type=str, default=None, help='scan in a system')
     parser.add_argument('--sl', type=str, help='software list shortname')
     parser.add_argument('--mode', type=str, default="file" , help='software list match mode (file|dir)')
-    parser.add_argument('--mister', type=bool, default=False, help='unpack to MiSTer')
-    parser.add_argument('--pegasus-fe', type=bool, default=False, help='pegasus frontend')
+    parser.add_argument('--output-mode', type=str, default="json" , help='output to what? (mister|pegasus|yaml|json)')
     args = parser.parse_args()
 
 
