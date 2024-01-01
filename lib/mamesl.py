@@ -146,6 +146,12 @@ class MAMESL():
                     name = os.path.splitext(filename)[0]
                     if os.path.exists(abspath):
                         filelist[name] = abspath
+            elif self.mode == 'file-parent':
+                for filename in files:
+                    abspath = os.path.join(root,filename)
+                    name = os.path.basename(root)
+                    if os.path.exists(abspath):
+                        filelist[name] = abspath
 
         logger.Logger()._log(" Found %d items" % len(filelist))
         return filelist
@@ -154,7 +160,7 @@ class MAMESL():
         """ split a string on delim """
         return s.split(d)
 
-    def scan(self, sysconfig, mode):
+    def scan(self, sysconfig):
         runstart = logger.Logger().getnow()
 
         self.sysconfig = sysconfig
@@ -163,7 +169,6 @@ class MAMESL():
             return None
         self.system = self.sysconfig['name']
 
-        self.mode = mode or self.mode
         self.extensions = self.sysconfig['extensions'].split()
 
         self.mameinifile = self.sysconfig['ini']
@@ -179,7 +184,7 @@ class MAMESL():
         self.itemlist = {}
         for itempath in itempaths:
             start = logger.Logger().getnow()
-            self.itemlist.update(MAMESL().scanpath(itempath))
+            self.itemlist.update(self.scanpath(itempath))
             logger.Logger().timestr(logger.Logger().getnow() - start)
 
         start = logger.Logger(). getnow()

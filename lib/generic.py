@@ -7,11 +7,18 @@ class Generic():
     def init(self):
         return
 
-    def create_list(self, d):
-        for root, dirs, files in os.walk(os.path.expanduser(d)):
+    def create_list(self, p, e):
+        e = [x.strip(' ') for x in e]
+        for root, dirs, files in os.walk(os.path.expanduser(p)):
             for filename in files:
-                abs_path = os.path.join(root, filename)
-                self.populate_cache(abs_path)
+                ext = os.path.splitext(filename)[-1]
+                try:
+                    ext = ext.replace('.','')
+                except:
+                    pass
+                if ext in e:
+                    abs_path = os.path.join(root, filename)
+                    self.populate_cache(abs_path)
         return
 
     def generate_name_from_file(self, name):
@@ -45,5 +52,5 @@ class Generic():
 
     def scan(self, sysconfig=None):
         self.mindata = {}
-        self.create_list(sysconfig['rom_dir'])
+        self.create_list(sysconfig['rom_dir'], sysconfig['extensions'].split(','))
         return self.mindata

@@ -16,6 +16,7 @@ from lib.generic import Generic
 systems = ['mame', 'mamesl','generic']
 output_modes = ['mister', 'pegasus','json','yaml']
 config_paths = ['cfg','_cache']
+modes = ['dir','file','file-parent']
 
 def main(args):
     system = args.system
@@ -83,10 +84,10 @@ def main(args):
         if not sl:
             print("--sl not passed")
             return
-        mamesl = MAMESL()
+        mamesl = MAMESL(mode)
         mamesl.sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % sl)
         sysconfig = config.read_config_system(mamesl.sysfile, output.vars())
-        dataset = mamesl.scan(sysconfig, mode)
+        dataset = mamesl.scan(sysconfig)
         # override system for output
         system = sl
 
