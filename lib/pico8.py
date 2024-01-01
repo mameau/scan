@@ -3,8 +3,6 @@
 import os
 import re
 
-import lib.scanner as scanner
-import lib.filelist as filelist
 import lib.config as config
 
 class PICO8():

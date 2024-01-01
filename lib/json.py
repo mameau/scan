@@ -20,6 +20,9 @@ class JSON():
         self.jsonconfig_data['entries'] = data
         return
 
+    def vars(self):
+        return None
+
     def dump(self, system=None):
         logger.Logger()._log("Writing %d items to cache file" % len(self.jsonconfig_data))
         if self.jsonconfig_data is not None and len(self.jsonconfig_data) > 0: 

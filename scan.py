@@ -7,12 +7,13 @@ import argparse
 from lib.mame import MAME
 from lib.mamesl import MAMESL
 from lib.json import JSON
-from lib.pico8 import PICO8
+#from lib.pico8 import PICO8
 #from lib.mister import Mister
 from lib.pegasus import Pegasus
 from lib.config import Config
+from lib.generic import Generic
 
-systems = ['mame', 'mamesl','pico8']
+systems = ['mame', 'mamesl','generic']
 output_modes = ['mister', 'pegasus','json','yaml']
 config_paths = ['cfg','_cache']
 
@@ -21,6 +22,7 @@ def main(args):
     sl = args.sl
     mode = args.mode
     output_mode = args.output_mode
+    cfg = args.cfg
 
     config = Config()
     config.read_config_main()
@@ -37,7 +39,7 @@ def main(args):
 
     if output_mode in output_modes:
         if  output_mode == "mister":
-            print("MisterFPGA supported started")
+            print("MisterFPGA support started")
             mister = Mister()
             # local dir mode
             mountpoint = os.path.join(mainconfig['mister_mount'], mister.sdroot, sysconfig['mister_core'])
@@ -47,29 +49,34 @@ def main(args):
             a.extract(dataset, client)
             output = Mister()
         elif output_mode == "pegasus":
-            print("Pegasus Frontend supported started")
+            print("Pegasus Frontend support started")
             output = Pegasus()
         elif output_mode == "yaml":
             print("YAML is not supported yet")
             return
         else:
             # JSON
-            print("JSON supported started")
+            print("JSON support started")
             output = JSON()
     else:
         print(f"Unsupported output mode: {output_mode}")
+        exit()
 
     ### MAME
     if system == "mame":
         mame = MAME()
         mame.scan()
 
-    ### PICO8
-    elif system == "pico8":
-        pico8 = PICO8()
-        sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % system)
-        sysconfig = config.read_config_system(sysfile)
-        dataset = pico8.scan(sysconfig)
+    ### File
+    elif system == "generic":
+        if not cfg:
+            print("--cfg not passed")
+            return
+        generic = Generic()
+        sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % cfg)
+        sysconfig = config.read_config_system(sysfile, output.vars())
+        dataset = generic.scan(sysconfig)
+        system = cfg
 
     ### MAME Software Lists
     elif system == "mamesl":
@@ -78,13 +85,14 @@ def main(args):
             return
         mamesl = MAMESL()
         mamesl.sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % sl)
-        sysconfig = config.read_config_system(mamesl.sysfile)
+        sysconfig = config.read_config_system(mamesl.sysfile, output.vars())
         dataset = mamesl.scan(sysconfig, mode)
         # override system for output
         system = sl
 
     else:
         print("Unsupported system")
+        exit()
 
     #push dataset to output module
     output.collection(sysconfig)
@@ -93,9 +101,12 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Scan a system')
+    # input
     parser.add_argument('--system', required=True, type=str, default=None, help='scan in a system')
     parser.add_argument('--sl', type=str, help='software list shortname')
+    parser.add_argument('--cfg', type=str, help='generic system cfg')
     parser.add_argument('--mode', type=str, default="file" , help='software list match mode (file|dir)')
+    # output
     parser.add_argument('--output-mode', type=str, default="json" , help='output to what? (mister|pegasus|yaml|json)')
     args = parser.parse_args()
 

@@ -31,50 +31,40 @@ class Config():
     def read_config_main(self):        
         self.config_main = (self.__readconfig(self.config_file))
 
-    def read_config_system(self, config):
+    def read_config_system(self, config, d=None):
         if not os.path.exists(config):  
             return
 
         self.config_system = (self.__readconfig(config))
 
-        inline_vars = {
+        inline_const = {
             'SYSTEM_NAME':self.config_system['name'],
             'GAME_EXEC':self.config_system['exec'],
+        }
+
+        inline_vars = {
             'ROM_EXT':self.config_system['extension'],
             'ROM_DIR':self.config_system['rom_dir'],
-            }
+        }
+        
+        if d is not None:
+            inline_vars = d
+
+        inline_vars = {**inline_const, **inline_vars}
 
         # read it a second time so we use any inline vars
         self.config_system = (self.__readconfig(config))
 
-        # update dict from main_config vars
+        # update dict from vars
         for k in self.config_system:
             v = self.config_system[k]
             if v is not None:
-                v = v.split("/")
-            else:
-                v = []
-            z = []
-
-            # this is shit, should be able to inline update the dict
-            for i in v:
-                # main config
-                if i.lower() in self.config_main.keys():
-                    z.append(self.config_main[i.lower()])
-            if len(z) > 0:
-                self.config_system[k] = '/'.join(z)
-            else:
-                self.config_system[k] = '/'.join(v)
-
-
-            for i in v:
-                # systems config
-                if i.upper() in inline_vars.keys():
-                    z.append(inline_vars[i])
-            if len(z) > 0:
-                self.config_system[k] = '/'.join(z)
-            else:
-                self.config_system[k] = '/'.join(v)
+                for s in inline_vars.keys():
+                    v = re.sub(s.upper(), str(inline_vars[s]), v)
+                    for m in self.config_main.keys():
+                        v = re.sub(m.upper(), str(self.config_main[m]), v)
+                
+                self.config_system[k] = v
 
         return self.config_system
 
@@ -123,7 +113,6 @@ class Config():
         cmd = self.current_system['cmd']
         for key in launch_opts.keys():
             cmd = cmd.replace(key,launch_opts[key])
-        print(cmd)
         return cmd
 
     def expand_user(self,s):

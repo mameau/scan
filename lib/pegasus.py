@@ -33,16 +33,31 @@ class Pegasus():
             self.pegasus_config_data['entries'].append(game_data)
         return
 
+    def vars(self):
+        return {
+            'ROM_EXT':'{file.ext}',
+            'ROM_DIR':'{file.dir}',
+            'ROM_NAME':'{file.name}',
+            'ROM_BASENAME':'{file.basename}',
+            'ROM_EXT':'{file.ext}',
+            'ROM_PATH':'{file.path}',
+            'ROM_URI':'{file.uri}',
+            }
+
+
     def dump(self, system=None):
 
-        # fake yaml to satisfy pegasus
-        for k in self.pegasus_config_data:
-            if k != 'entries':
-                print(f"{k}: {self.pegasus_config_data[k]}")
+        outfile = os.path.join(config.Config().config_dir,'_cache','%s.metadata.pegasus.txt' % system)
 
-        print("")
-        for e in self.pegasus_config_data['entries']:
-            for g in e:
-                print(f"{g}: {e[g]}")
-            print("")
+        with open(outfile, 'w') as f:
+            # fake yaml/text hybrid to satisfy pegasus
+            for k in self.pegasus_config_data:
+                if k != 'entries':
+                    f.write(f"{k}: {self.pegasus_config_data[k]}\n")
+
+            f.write("\n")
+            for e in self.pegasus_config_data['entries']:
+                for g in e:
+                    f.write(f"{g}: {e[g]}\n")
+                f.write("\n")
         return

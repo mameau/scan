@@ -50,6 +50,8 @@ class MAMESL():
         mindata = {}
 
         # find all the machines and check if we have them in our filelist)
+        if data is None:
+            return mindata
         machine_data = data.findall('software')
 
         for element in machine_data:
