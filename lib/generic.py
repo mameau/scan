@@ -20,40 +20,41 @@ class Generic():
                         filelist[name] = abspath
             elif self.mode == 'file':
                 for filename in files:
-                    ext = os.path.splitext(filename)[-1]
+                    abspath = os.path.join(root,filename)
+                    ext = os.path.splitext(abspath)[-1]
                     try:
                         ext = ext.replace('.','')
                     except:
                         pass
                     if ext in e:
-                        abspath = os.path.join(root,filename)
-                        name = os.path.splitext(filename)[0]
+                        name = '. '.join(os.path.splitext(filename)[:-1])
                         if os.path.exists(abspath):
                             filelist[name] = abspath
             elif self.mode == 'file-parent':
                 for filename in files:
-                    ext = os.path.splitext(filename)[-1]
+                    abspath = os.path.join(root,filename)
+                    ext = os.path.splitext(abspath)[-1]
                     try:
                         ext = ext.replace('.','')
                     except:
                         pass
                     if ext in e:
-                        abspath = os.path.join(root,filename)
                         name = os.path.basename(root)
                         if os.path.exists(abspath):
                             filelist[name] = abspath
         return filelist
 
     def generate_name_from_file(self, name):
-        return os.path.splitext(name)[0]
+        print(os.path.splitext(name))
+        return '. '.join(os.path.splitext(name)[:-1])
 
     def populate_cache(self, filelist={}):
 
         for filename in filelist:
-            basename = os.path.basename(filelist[filename])
-            game_name = os.path.splitext(basename)[0]
-            game_ext = os.path.splitext(basename)[1]
-            description = self.generate_name_from_file(filename)
+            basename = os.path.basename(filename)
+            game_name = filename
+            game_ext = os.path.splitext(basename)[-1]
+            description = filename
             year = "????"
             manufacturer = "Unspecified"
             driver_status = "Unknown"
