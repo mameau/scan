@@ -20,7 +20,6 @@ modes = ['dir','file','file-parent']
 
 def main(args):
     system = args.system
-    sl = args.sl
     mode = args.mode
     output_mode = args.output_mode
     cfg = args.cfg
@@ -66,14 +65,16 @@ def main(args):
     ### MAME
     if system == "mame":
         mame = MAME()
-        mame.scan()
+        mame.sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % sl)
+        sysconfig = config.read_config_system(mame.sysfile, output.vars())
+        dataset = mame.scan()
 
     ### File
     elif system == "generic":
         if not cfg:
             print("--cfg not passed")
             return
-        generic = Generic()
+        generic = Generic(mode)
         sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % cfg)
         sysconfig = config.read_config_system(sysfile, output.vars())
         dataset = generic.scan(sysconfig)
@@ -81,15 +82,15 @@ def main(args):
 
     ### MAME Software Lists
     elif system == "mamesl":
-        if not sl:
-            print("--sl not passed")
+        if not cfg:
+            print("--cfg not passed")
             return
         mamesl = MAMESL(mode)
-        mamesl.sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % sl)
+        mamesl.sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % cfg)
         sysconfig = config.read_config_system(mamesl.sysfile, output.vars())
         dataset = mamesl.scan(sysconfig)
         # override system for output
-        system = sl
+        system = cfg
 
     else:
         print("Unsupported system")
@@ -104,11 +105,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Scan a system')
     # input
     parser.add_argument('--system', required=True, type=str, default=None, help='scan in a system')
-    parser.add_argument('--sl', type=str, help='software list shortname')
-    parser.add_argument('--cfg', type=str, help='generic system cfg')
+    parser.add_argument('--cfg', type=str, help='system cfg')
     parser.add_argument('--mode', type=str, default="file" , help='software list match mode (file|dir)')
     # output
-    parser.add_argument('--output-mode', type=str, default="json" , help='output to what? (mister|pegasus|yaml|json)')
+    parser.add_argument('--output-mode', type=str, default="json" , help='output to what? (mister|pegasus|json)')
     args = parser.parse_args()
 
 
