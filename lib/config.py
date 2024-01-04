@@ -8,10 +8,7 @@ import lib.logger as logger
 
 class Config():
     def __init__(self):
-        self.config_dir = os.path.expanduser('~/.scan')
-        self.config_dir_systems = os.path.join(self.config_dir,'cfg')
-        self.config_dir_cache = os.path.join(self.config_dir,'_cache')
-        self.config_file = os.path.join(self.config_dir,'scan.yaml')
+        self.check_config()
         self.config_example_system = os.path.join(self.config_dir_systems,'system.yaml.example')
         self.inline_vars = {}
         self.config_generic = {}
@@ -22,12 +19,29 @@ class Config():
         self.read_config_main()
         return
 
+
+    def check_config(self, config="/etc/scan/scan.yaml"):
+        if os.path.exists(config):
+            self.config_dir = os.path.expanduser('/etc/scan')     
+        else:       
+            self.config_dir = os.path.expanduser('~/.scan')
+
+        self.config_file = os.path.join(self.config_dir,'scan.yaml')
+        self.config_dir_systems = os.path.join(self.config_dir,'cfg')
+        self.config_dir_cache = os.path.join(self.config_dir,'_cache')
+
     def __readconfig(self, config):
         """ read the ini into a dict object """
         self.confdict = {}
         if os.path.exists(config):
             with open(config, 'r') as file:
                 self.confdict = yaml.safe_load(file)
+        if systems_config_dir in self.confdict.keys():
+            self.config_dir_systems = os.path.expanduser(self.confdict['systems_config_dir'])
+
+        if cache_dir in self.confdict.keys():
+            self.config_dir_systems = os.path.expanduser(self.confdict['cache_dir'])
+
         return self.confdict
 
     def read_config_main(self):        
