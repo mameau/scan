@@ -8,7 +8,7 @@ from lib.mame import MAME
 from lib.mamesl import MAMESL
 from lib.json import JSON
 #from lib.pico8 import PICO8
-#from lib.mister import Mister
+from lib.mister import Mister
 from lib.pegasus import Pegasus
 from lib.config import Config
 from lib.generic import Generic
@@ -35,14 +35,7 @@ def main(args):
     if output_mode in output_modes:
         if  output_mode == "mister":
             print("MisterFPGA support started")
-            mister = Mister()
-            # local dir mode
-            mountpoint = os.path.join(mainconfig['mister_mount'], mister.sdroot, sysconfig['mister_core'])
-            mister.mkdir(mountpoint)
-            client = client_local.ClientDIR(mountpoint)
-            a = archive.Archive()
-            a.extract(dataset, client)
-            output = Mister()
+            output = Mister(sdroot="", system=cfg)
         elif output_mode == "pegasus":
             print("Pegasus Frontend support started")
             output = Pegasus()
@@ -60,8 +53,8 @@ def main(args):
     ### MAME
     if system == "mame":
         mame = MAME()
-        mame.sysfile = os.path.join(config.config_dir_systems,'%s.yaml' % sl)
-        sysconfig = config.read_config_system(mame.sysfile, output.vars())
+        #mame.sysfile = os.path.join(config.config_dir_systems,'%s.yaml' % cfg)
+        #sysconfig = config.read_config_system(mame.sysfile, output.vars())
         dataset = mame.scan()
 
     ### File
