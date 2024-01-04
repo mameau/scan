@@ -36,11 +36,18 @@ class Config():
         if os.path.exists(config):
             with open(config, 'r') as file:
                 self.confdict = yaml.safe_load(file)
-        if systems_config_dir in self.confdict.keys():
+        if "systems_config_dir" in self.confdict.keys():
             self.config_dir_systems = os.path.expanduser(self.confdict['systems_config_dir'])
 
-        if cache_dir in self.confdict.keys():
-            self.config_dir_systems = os.path.expanduser(self.confdict['cache_dir'])
+        if "cache_dir" in self.confdict.keys():
+            self.config_dir_cache = os.path.expanduser(self.confdict['cache_dir'])
+
+        for path in [self.config_dir_systems, self.config_dir_cache]:
+            if not os.path.exists(path):
+                try:
+                    os.mkdir(path)
+                except PermissionError:
+                    print(f"Failed to create dir: {path}")
 
         return self.confdict
 

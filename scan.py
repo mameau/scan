@@ -30,11 +30,6 @@ def main(args):
 
     output = ""
 
-    for path in config_paths:
-        abs = os.path.join(config.config_dir, path)
-        if not os.path.exists(abs):
-            os.mkdir(abs)
-
     ### OUTPUT modes
 
     if output_mode in output_modes:

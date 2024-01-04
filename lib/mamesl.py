@@ -191,6 +191,7 @@ class MAMESL():
         dataset = self.searchxml()
         logger.Logger().timestr(logger.Logger().getnow() - start)
 
+
         logger.Logger()._log("Summary")
         logger.Logger().timestr(logger.Logger().getnow() - runstart)
         return dataset
