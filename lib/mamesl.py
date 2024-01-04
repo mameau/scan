@@ -191,9 +191,6 @@ class MAMESL():
         dataset = self.searchxml()
         logger.Logger().timestr(logger.Logger().getnow() - start)
 
-        #if not mode == 'mister':
-        #    scanner.Scanner()._cache(dataset, self.system)
-
         logger.Logger()._log("Summary")
         logger.Logger().timestr(logger.Logger().getnow() - runstart)
         return dataset

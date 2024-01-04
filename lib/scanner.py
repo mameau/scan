@@ -14,7 +14,7 @@ class Scanner():
     def _cache(self, data, system):
         logger.Logger()._log("Writing %d items to cache file" % len(data))
         if len(data) > 0: 
-            outfile = os.path.join(config.Config().config_dir,'_cache','%s.json' % system)
+            outfile = os.path.join(config.Config().config_dir_cache,'%s.json' % system)
             logger.Logger()._log("Writing %d items to cache file %s" % (len(data), outfile))
             with open(outfile,'w') as f:
                 json.dump(data, f)

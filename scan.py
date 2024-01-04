@@ -65,7 +65,7 @@ def main(args):
     ### MAME
     if system == "mame":
         mame = MAME()
-        mame.sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % sl)
+        mame.sysfile = os.path.join(config.config_dir_systems,'%s.yaml' % sl)
         sysconfig = config.read_config_system(mame.sysfile, output.vars())
         dataset = mame.scan()
 
@@ -75,7 +75,7 @@ def main(args):
             print("--cfg not passed")
             return
         generic = Generic(mode)
-        sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % cfg)
+        sysfile = os.path.join(config.config_dir_systems,'%s.yaml' % cfg)
         sysconfig = config.read_config_system(sysfile, output.vars())
         dataset = generic.scan(sysconfig)
         system = cfg
@@ -86,7 +86,7 @@ def main(args):
             print("--cfg not passed")
             return
         mamesl = MAMESL(mode)
-        mamesl.sysfile = os.path.join(config.config_dir,'cfg','%s.yaml' % cfg)
+        mamesl.sysfile = os.path.join(config.config_dir_systems,'%s.yaml' % cfg)
         sysconfig = config.read_config_system(mamesl.sysfile, output.vars())
         dataset = mamesl.scan(sysconfig)
         # override system for output

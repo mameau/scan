@@ -47,7 +47,7 @@ class Pegasus():
 
     def dump(self, system=None):
 
-        outfile = os.path.join(config.Config().config_dir,'_cache','%s.metadata.pegasus.txt' % system)
+        outfile = os.path.join(config.Config().config_dir_cache,'%s.metadata.pegasus.txt' % system)
 
         with open(outfile, 'w') as f:
             # fake yaml/text hybrid to satisfy pegasus

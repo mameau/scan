@@ -16,7 +16,6 @@ class MAME():
     def init(self):
         return
 
-
     def getxml(self):
         """ read the mameinfo.xml into memory """
 
@@ -24,15 +23,13 @@ class MAME():
         p = subprocess.Popen(["mame", "-listxml"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         xmlfile, xmlerr = p.communicate()
 
-        #xmlfile = subprocess.run(["mame", "-listxml"], capture_output=True, text=True)
-
         if xmlfile is not None:
             logger.Logger()._log("Received data from mame")
             x = etree.fromstring(xmlfile)
-            #return x.getroot()
             return x
         else:
             logger.Logger()._log("No data received from mame")
+            exit()
         return None
 
     def searchxml(self, terms):
@@ -109,7 +106,7 @@ class MAME():
     def scan(self):
         runstart = logger.Logger().getnow()
         system = 'mame'
-        sysfile = os.path.join(CONFIG_DIR,'cfg','%s.yaml' % system)
+        sysfile = os.path.join(config.Config().config_dir_systems,'%s.yaml' % system)
         sysconfig = config.Config().read_config_system(sysfile)
         mameinifile = os.path.expanduser(sysconfig['ini'])
 

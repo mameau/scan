@@ -9,8 +9,10 @@ import lib.logger as logger
 class Config():
     def __init__(self):
         self.config_dir = os.path.expanduser('~/.scan')
+        self.config_dir_systems = os.path.join(self.config_dir,'cfg')
+        self.config_dir_cache = os.path.join(self.config_dir,'_cache')
         self.config_file = os.path.join(self.config_dir,'scan.yaml')
-        self.config_example_system = os.path.join(self.config_dir,'yaml','system.yaml.example')
+        self.config_example_system = os.path.join(self.config_dir_systems,'system.yaml.example')
         self.inline_vars = {}
         self.config_generic = {}
         self.config_main = {}
@@ -93,9 +95,9 @@ class Config():
 
     def get_systems(self):
         cntr = 0
-        for sysconfig in glob.iglob(os.path.join(self.config_dir,'cfg','*.yaml')):
+        for sysconfig in glob.iglob(os.path.join(self.config_dir_systems,'*.yaml')):
             sysname = os.path.splitext(os.path.basename(sysconfig))[0]
-            if os.path.exists(os.path.join(self.config_dir,"_cache","%s.json" % sysname)):
+            if os.path.exists(os.path.join(self.config_dir_cache,"%s.json" % sysname)):
                 self.emulator[cntr] = self.read_config_system(sysconfig).copy()
                 cntr += 1
             else:
