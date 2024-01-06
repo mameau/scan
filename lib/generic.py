@@ -9,10 +9,13 @@ class Generic():
         self.config = Config()
         self.mode = mode
         self.sysfile = os.path.join(self.config.config_dir_systems,'%s.yaml' % system)
-        self.sysconfig = self.config.read_config_system(self.sysfile, output.vars())
+        if output is not None:
+            self.sysconfig = self.config.read_config_system(self.sysfile, output.vars())
+        else:
+            self.sysconfig = self.config.read_config_system(self.sysfile)
         return
 
-    def create_list(self, p, e):
+    def create_list(self, p, e=[]):
         filelist = {}
         e = [x.strip(' ') for x in e]
         for root, dirs, files in os.walk(os.path.expanduser(p)):
@@ -52,15 +55,15 @@ class Generic():
         print(os.path.splitext(name))
         return '. '.join(os.path.splitext(name)[:-1])
 
-    def populate_cache(self, filelist={}):
+    def populate_cache(self, filelist={}, year="????", manufacturer="Unspecified", driver_status="Unknown"):
 
         for filename in filelist:
             basename = os.path.basename(filename)
             game_name = filename
             game_ext = os.path.splitext(basename)[-1]
             description = filename
-            year = "????"
-            manufacturer = "Unspecified"
+            year = year
+            manufacturer = manufacturer
             driver_status = "Unknown"
             display_orientation = 0
             players = 1

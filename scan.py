@@ -7,7 +7,7 @@ import argparse
 from lib.mame import MAME
 from lib.mamesl import MAMESL
 from lib.json import JSON
-#from lib.pico8 import PICO8
+from lib.pico8 import PICO8
 from lib.mister import Mister
 from lib.pegasus import Pegasus
 from lib.config import Config
@@ -54,6 +54,11 @@ def main(args):
         mame = MAME(output=output)
         dataset = mame.scan()
         sysconfig = mame.sysconfig
+
+    elif system == "pico8":
+        pico8 = PICO8()
+        dataset = pico8.scan()
+        sysconfig = pico8.sysconfig
 
     else:
         if not cfg:
