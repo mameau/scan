@@ -39,15 +39,19 @@ class Archive():
             #allfiles = self.archive.getnames() #py7zr
             allfiles = self.archive.namelist()
             targets = []
+            ext = os.path.splitext(dataset[item]['name_sl'])[-1]
             if dataset[item]['name_sl'] in allfiles:
                 src = os.path.join(self.archive_tmp.name,dataset[item]['name_sl'])
-                dest = os.path.join(client.mountpoint,self.valid_filename(dataset[item]['name_pretty']))
+                dest = os.path.join(client.mountpoint,self.valid_filename(dataset[item]['name_pretty']+ext))
 
                 if not os.path.exists(dest):
                     self.archive.extract(dataset[item]['name_sl'], path=self.archive_tmp.name)
+                else:
+                    logger.Logger()._log("Skipping existing file: %s" % dest)
 
                 if os.path.exists(src):
                     client.put(src, dest)
+                    pass
 
             self.close()
         return

@@ -118,7 +118,7 @@ class MAMESL():
                     'name' : description,
                     'description' : description,
                     'name_rom' : "%s" % game_name,
-                    'name_pretty' : "%s (%s).%s" % (description, game_name, game_data['ext']),
+                    'name_pretty' : "%s (%s)" % (description, game_name),
                     'name_sl'     : game_data["name"],
                     'rom_abspath' : terms[game_name],
                     'year' : year,
