@@ -16,7 +16,7 @@ class JSON():
         pass
 
     def collection(self, data=None):
-        self.jsonconfig_data['collection'] = data
+        self.jsonconfig_data['system'] = data
         return
 
     def entry(self, data=None):
@@ -27,7 +27,6 @@ class JSON():
         return {}
 
     def dump(self, system=None):
-        logger.Logger()._log("Writing %d items to cache file" % len(self.jsonconfig_data))
         if self.jsonconfig_data is not None and len(self.jsonconfig_data) > 0: 
             outfile = os.path.join(config.config_dir_cache,'%s.json' % system)
             logger.Logger()._log("Writing %d items to cache file %s" % (len(self.jsonconfig_data), outfile))

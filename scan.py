@@ -2,15 +2,9 @@
 
 import os
 import argparse
-
-# libs
-from lib.input.mame import MAME
-from lib.input.mamesl import MAMESL
-from lib.input.pico8 import PICO8
-from lib.input.generic import Generic
 from lib.config import Config
 
-systems = ['mame', 'mamesl','generic']
+systems = ['mame', 'mamesl','generic','pico8']
 output_modes = ['mister', 'pegasus','json','yaml','screen']
 config_paths = ['cfg','_cache']
 modes = ['dir','file','file-parent']
@@ -40,8 +34,8 @@ def main(args):
             from lib.output.screen import Screen
             output = Screen()
         elif output_mode == "yaml":
-            print("YAML is not supported yet")
-            return
+            from lib.output.yaml import YAML
+            output = YAML()
         else:
             from lib.output.json import JSON
             output = JSON()
@@ -51,22 +45,25 @@ def main(args):
 
     ### MAME
     if system == "mame":
+        from lib.input.mame import MAME
         mame = MAME(output=output)
         dataset = mame.scan()
         sysconfig = mame.sysconfig
 
     elif system == "pico8":
+        from lib.input.pico8 import PICO8
         pico8 = PICO8()
         dataset = pico8.scan()
         sysconfig = pico8.sysconfig
 
     else:
         if not cfg:
-            print("--cfg not passed")
+            print("--cfg is required")
             return
 
         ### File
         if system == "generic": 
+            from lib.input.generic import Generic
             generic = Generic(mode=mode, system=cfg, output=output)
             dataset = generic.scan()
             sysconfig = generic.sysconfig
@@ -74,6 +71,7 @@ def main(args):
 
         ### MAME Software Lists
         elif system == "mamesl":
+            from lib.input.mamesl import MAMESL
             mamesl = MAMESL(mode=mode, system=cfg, output=output)
             dataset = mamesl.scan()
             sysconfig = mamesl.sysconfig
@@ -90,13 +88,14 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Scan a system')
+    parser_input = parser.add_argument_group(title='input')
+    parser_output = parser.add_argument_group(title='output')
     # input
-    parser.add_argument('--system', required=True, type=str, default=None, help='scan in a system')
-    parser.add_argument('--cfg', type=str, help='system cfg')
-    parser.add_argument('--mode', type=str, default="file" , help='software list match mode (file|dir)')
+    parser_input.add_argument('--system', required=True, type=str, default=None, help='scan a system', choices=systems)
+    parser_input.add_argument('--cfg', type=str, help='system cfg')
+    parser_input.add_argument('--mode', type=str, default="file" , help='software list match mode', choices=modes)
     # output
-    parser.add_argument('--output-mode', type=str, default="json" , help='output to what?')
+    parser_output.add_argument('--output-mode', type=str, default="json" , help='output mode', choices=output_modes)
     args = parser.parse_args()
-
 
     main(args)
