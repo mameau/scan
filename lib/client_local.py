@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import shutil
+import os
 
 """ local directory client """
 
@@ -15,13 +16,14 @@ class ClientDIR():
 
     def put(self, source, dest):
         """ put files for client """
-        shutil.copy2(source, dest)
+        shutil.move(source, dest)
         return
 
     def get(self):
         """ get files from client """
         return
 
-    def delete(self):
+    def delete(self, dest):
         """ delete files from client """
+        os.remove(dest)
         return
