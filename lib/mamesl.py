@@ -6,16 +6,19 @@ import subprocess
 import glob
 from lxml import etree
 
-import lib.logger as logger
-import lib.scanner as scanner
-import lib.config as config
+from lib.logger import Logger
+from lib.config import Config
 
-conf = config.Config()
+logger = Logger()
 
 class MAMESL():
-    def __init__(self, mode='file', sl=''):
+    def __init__(self, mode='file', system=None, output=None):
+        self.config = Config()
+
+        self.system = system
         self.mode = mode
-        self.sysfile = ""
+        self.sysfile = os.path.join(self.config.config_dir_systems,'%s.yaml' % system)
+        self.sysconfig = self.config.read_config_system(self.sysfile, output.vars())
         return
 
     def getxml(self):
@@ -29,11 +32,11 @@ class MAMESL():
         for software_list in software_lists:
             xmlfile = open(software_list,'r')
             if xmlfile is not None:
-                logger.Logger()._log("Received data from mame")
+                logger._log("Received data from mame")
                 x = etree.parse(xmlfile)
                 return x.getroot()
             else:
-                logger.Logger()._log("No data received from mame")
+                logger._log("No data received from mame")
             return None
 
     def searchxml(self):
@@ -41,7 +44,7 @@ class MAMESL():
 
         terms = self.itemlist
 
-        logger.Logger()._log("Total titles found: %d" % len(terms))
+        logger._log("Total titles found: %d" % len(terms))
 
         # read the mame xml
         data = self.getxml()
@@ -104,10 +107,10 @@ class MAMESL():
                                 game_data['name'] = rom.attrib['name']
                                 game_data['ext'] = rom_ext
 
-                                #logger.Logger()._log("%s | %s | %s.%s" % (rom.attrib["name"], game_name, description, self.sysconfig['extension']))
+                                #logger._log("%s | %s | %s.%s" % (rom.attrib["name"], game_name, description, self.sysconfig['extension']))
 
                     else:
-                        #logger.Logger()._log("We do not support multi-chip roms at the moment")
+                        #logger._log("We do not support multi-chip roms at the moment")
                         pass
 
 
@@ -130,7 +133,7 @@ class MAMESL():
     def scanpath(self, path):
         """ walk mame rompaths and return a list of files """
         filelist = {}
-        logger.Logger()._log("Reading items from %s" % path)
+        logger._log("Reading items from %s" % path)
         abspath = ""
         name = ""
         for root, dirs, files in os.walk(path):
@@ -153,45 +156,43 @@ class MAMESL():
                     if os.path.exists(abspath):
                         filelist[name] = abspath
 
-        logger.Logger()._log(" Found %d items" % len(filelist))
+        logger._log(" Found %d items" % len(filelist))
         return filelist
 
     def mamepaths(self, s, d=";"):
         """ split a string on delim """
         return s.split(d)
 
-    def scan(self, sysconfig):
-        runstart = logger.Logger().getnow()
+    def scan(self):
+        logger.runstart()
 
-        self.sysconfig = sysconfig
-        if sysconfig is None:
-            logger.Logger()._log("Software list config not found")
+        if self.sysconfig is None:
+            logger._log("Software list config not found")
             return None
         self.system = self.sysconfig['name']
 
         self.extensions = self.sysconfig['extensions'].split()
 
         self.mameinifile = self.sysconfig['ini']
-        self.mameinifile = conf.expand_user(self.mameinifile)
+        self.mameinifile = self.config.expand_user(self.mameinifile)
 
-        start = logger.Logger().getnow()
-        self.config = conf.read_config_generic(self.mameinifile)
-        logger.Logger().timestr(logger.Logger().getnow() - start)
+        logger.start()
+        mameconfig = self.config.read_config_generic(self.mameinifile)
+        logger.end()
 
         itempaths = self.mamepaths(self.sysconfig['rom_dir'])
-        self.hashpaths = [os.path.join(conf.expand_user(self.sysconfig['data_dir']))] + conf.config_generic['hashpath'].split(";")
+        self.hashpaths = [os.path.join(os.path.expanduser(self.sysconfig['data_dir']))] + mameconfig['hashpath'].split(";")
 
         self.itemlist = {}
         for itempath in itempaths:
-            start = logger.Logger().getnow()
+            logger.start()
             self.itemlist.update(self.scanpath(itempath))
-            logger.Logger().timestr(logger.Logger().getnow() - start)
 
-        start = logger.Logger(). getnow()
+        logger.start()
         dataset = self.searchxml()
-        logger.Logger().timestr(logger.Logger().getnow() - start)
+        logger.end()
 
 
-        logger.Logger()._log("Summary")
-        logger.Logger().timestr(logger.Logger().getnow() - runstart)
+        logger.summary()
+        logger.runend()
         return dataset

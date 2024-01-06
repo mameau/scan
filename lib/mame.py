@@ -2,18 +2,19 @@
 
 import os
 import re
-import json
 import subprocess
 from lxml import etree
 
 import lib.logger as logger
 import lib.scanner as scanner
-import lib.config as config
-
-CONFIG_DIR = os.path.expanduser('~/.scan')
+from lib.config import Config
 
 class MAME():
-    def init(self):
+    def __init__(self, output=None):
+        self.config = Config()
+        self.system = 'mame'
+        self.sysfile = os.path.join(self.config.config_dir_systems,'%s.yaml' % self.system)
+        self.sysconfig = self.config.read_config_system(self.sysfile, output.vars())
         return
 
     def getxml(self):
@@ -105,14 +106,11 @@ class MAME():
 
     def scan(self):
         runstart = logger.Logger().getnow()
-        system = 'mame'
-        sysfile = os.path.join(config.Config().config_dir_systems,'%s.yaml' % system)
-        sysconfig = config.Config().read_config_system(sysfile)
-        mameinifile = os.path.expanduser(sysconfig['ini'])
+        mameinifile = os.path.expanduser(self.sysconfig['ini'])
 
         start = logger.Logger().getnow()
     
-        mameconfig = config.Config().read_config_generic(mameinifile)
+        mameconfig = self.config.read_config_generic(mameinifile)
 
         logger.Logger().timestr(logger.Logger().getnow() - start)
 
@@ -120,15 +118,11 @@ class MAME():
         itemlist = {}
         for itempath in itempaths:
             start = logger.Logger().getnow()
-            itemlist.update(MAME().scanpath(itempath))
+            itemlist.update(self.scanpath(itempath))
             logger.Logger().timestr(logger.Logger().getnow() - start)
 
-        start = logger.Logger(). getnow()
+        start = logger.Logger().getnow()
         dataset = self.searchxml(itemlist)
-        logger.Logger().timestr(logger.Logger().getnow() - start)
-
-        scanner.Scanner()._cache(dataset, system)
-
         logger.Logger()._log("Summary")
         logger.Logger().timestr(logger.Logger().getnow() - runstart)
-        return
+        return dataset

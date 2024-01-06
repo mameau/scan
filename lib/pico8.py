@@ -3,24 +3,21 @@
 import os
 import re
 
-import lib.config as config
+from lib.config import Config
+from lib.generic import Generic
+
 
 class PICO8():
-    def init(self):
+    def __init__(self):
+        config = Config()
+        generic = Generic()
+
+        self.system = 'pico8'
+        self.sysfile = os.path.join(config.config_dir_systems,'%s.yaml' % system)
+        self.sysconfig = config.read_config_system(self.sysfile, output.vars())
         return
 
-    def create_list(self, d):
-        for root, dirs, files in os.walk(os.path.expanduser(d)):
-            for filename in files:
-                abs_path = os.path.join(root, filename)
-                self.populate_cache(filename)
-        return
-
-    def generate_name_from_file(self, name):
-        return os.path.splitext(name)[0]
-
-    def populate_cache(self, game_name):
-
+    def vars(self):
         game_name = os.path.splitext(game_name)[0]
         game_ext = os.path.splitext(game_name)[1]
         description = self.generate_name_from_file(game_name)
@@ -42,10 +39,9 @@ class PICO8():
             'driver_status' : driver_status,
             'display_orientation' : display_orientation,
             'players' : players,
-        }
+        }        
 
-
-    def scan(self, sysconfig=None):
+    def scan(self):
         self.mindata = {}
         self.populate_cache("splore")
         self.create_list(sysconfig['rom_dir'])

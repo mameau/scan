@@ -2,10 +2,12 @@
 
 import os
 import yaml
-import lib.config as config
+from lib.config import Config
 
 class Pegasus():
     def __init__(self):
+        print("Pegasus Frontend support started")
+        self.config = Config()
         self.pegasus_config_dir = os.path.expanduser('~/.config/pegasus-frontend')
         self.pegasus_config_gamedirs = os.path.join(self.pegasus_config_dir,'game_dirs.txt')
         self.pegasus_config_data = {}
@@ -47,7 +49,7 @@ class Pegasus():
 
     def dump(self, system=None):
 
-        outfile = os.path.join(config.Config().config_dir_cache,'%s.metadata.pegasus.txt' % system)
+        outfile = os.path.join(self.config.config_dir_cache,'%s.metadata.pegasus.txt' % system)
 
         with open(outfile, 'w') as f:
             # fake yaml/text hybrid to satisfy pegasus

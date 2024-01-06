@@ -5,10 +5,13 @@ import json
 import re
 
 import lib.logger as logger
-import lib.config as config
+from lib.config import Config
+
+config = Config()
 
 class JSON():
     def __init__(self):
+        print("JSON support started")
         self.jsonconfig_data = {}
         pass
 
@@ -21,12 +24,12 @@ class JSON():
         return
 
     def vars(self):
-        return None
+        return {}
 
     def dump(self, system=None):
         logger.Logger()._log("Writing %d items to cache file" % len(self.jsonconfig_data))
         if self.jsonconfig_data is not None and len(self.jsonconfig_data) > 0: 
-            outfile = os.path.join(config.Config().config_dir_cache,'%s.json' % system)
+            outfile = os.path.join(config.config_dir_cache,'%s.json' % system)
             logger.Logger()._log("Writing %d items to cache file %s" % (len(self.jsonconfig_data), outfile))
             with open(outfile,'w') as f:
                 json.dump(self.jsonconfig_data, f)

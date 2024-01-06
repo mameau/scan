@@ -2,10 +2,14 @@
 
 import os
 import re
+from lib.config import Config
 
 class Generic():
-    def __init__(self, mode='file'):
+    def __init__(self, mode='file', system=None, output=None):
+        self.config = Config()
         self.mode = mode
+        self.sysfile = os.path.join(self.config.config_dir_systems,'%s.yaml' % system)
+        self.sysconfig = self.config.read_config_system(self.sysfile, output.vars())
         return
 
     def create_list(self, p, e):
@@ -75,8 +79,8 @@ class Generic():
                 'players' : players,
             }
 
-    def scan(self, sysconfig=None):
+    def scan(self):
         self.mindata = {}
-        dataset = self.create_list(sysconfig['rom_dir'], sysconfig['extensions'].split(','))
+        dataset = self.create_list(self.sysconfig['rom_dir'], self.sysconfig['extensions'].split(','))
         self.populate_cache(dataset)
         return self.mindata

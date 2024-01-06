@@ -7,6 +7,7 @@ from lib.client_local import ClientDIR
 
 class Mister():
     def __init__(self, sdroot="media/fat/games", system=None):
+        print("MisterFPGA support started")
         self.sdroot = sdroot
         self.config = Config()
         self.sysfile = os.path.join(self.config.config_dir_systems,'%s.yaml' % system)
@@ -22,7 +23,7 @@ class Mister():
         return 
 
     def vars(self, data=None):
-        return
+        return {}
 
     def collection(self, data=None):
         return
