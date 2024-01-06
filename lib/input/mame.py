@@ -6,7 +6,6 @@ import subprocess
 from lxml import etree
 
 import lib.logger as logger
-import lib.scanner as scanner
 from lib.config import Config
 
 class MAME():

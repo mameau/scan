@@ -4,7 +4,7 @@ import os
 import re
 
 from lib.config import Config
-from lib.generic import Generic
+from lib.input.generic import Generic
 
 config = Config()
 generic = Generic()

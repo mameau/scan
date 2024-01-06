@@ -4,15 +4,11 @@ import os
 import argparse
 
 # libs
-from lib.mame import MAME
-from lib.mamesl import MAMESL
-from lib.json import JSON
-from lib.pico8 import PICO8
-from lib.mister import Mister
-from lib.pegasus import Pegasus
+from lib.input.mame import MAME
+from lib.input.mamesl import MAMESL
+from lib.input.pico8 import PICO8
+from lib.input.generic import Generic
 from lib.config import Config
-from lib.generic import Generic
-from lib.screen import Screen
 
 systems = ['mame', 'mamesl','generic']
 output_modes = ['mister', 'pegasus','json','yaml','screen']
@@ -35,15 +31,19 @@ def main(args):
 
     if output_mode in output_modes:
         if  output_mode == "mister":
+            from lib.output.mister import Mister
             output = Mister(sdroot="", system=cfg)
         elif output_mode == "pegasus":
+            from lib.output.pegasus import Pegasus
             output = Pegasus()
         elif output_mode == "screen":
+            from lib.output.screen import Screen
             output = Screen()
         elif output_mode == "yaml":
             print("YAML is not supported yet")
             return
         else:
+            from lib.output.json import JSON
             output = JSON()
     else:
         print(f"Unsupported output mode: {output_mode}")
