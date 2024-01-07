@@ -3,7 +3,7 @@
 import os
 from lib.config import Config
 from lib.archive import Archive
-from lib.client_local import ClientDIR
+
 
 class Mister():
     def __init__(self, sdroot="media/fat/games", system=None):
@@ -21,6 +21,12 @@ class Mister():
         self.mountpoint = os.path.join(self.mainconfig['mister_mount'], self.sdroot, self.sysconfig['mister_core'])
         self.mkdir(self.mountpoint)
 
+    def client(self, client="local"):
+        if client == "local":
+            from lib.client.local import ClientDIR
+            return ClientDIR(self.mountpoint)
+        return
+
     def mkdir(self, d):
         if not os.path.exists(d):
             return os.mkdir(d)
@@ -36,8 +42,8 @@ class Mister():
         self.dataset = data
         return
 
-    def dump(self, system=None):
-        client = ClientDIR(self.mountpoint)
+    def dump(self, system=None, clientmode="local"):
+        client = self.client(clientmode)
         a = Archive()
         a.extract(self.dataset, client)
         return

@@ -8,6 +8,7 @@ import os
 
 class ClientDIR():
     def __init__(self, mountpoint):
+        print("Local client started")
         self.mountpoint = mountpoint or None
         return
 
