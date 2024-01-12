@@ -80,7 +80,7 @@ class Config():
 
         # update dict from vars
         for k in self.config_system:
-            v = self.config_system[k]
+            v = str(self.config_system[k])
             if v is not None:
                 for s in inline_vars.keys():
                     v = re.sub(s.upper(), str(inline_vars[s]), v)
