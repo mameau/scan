@@ -7,18 +7,19 @@ from lib.config import Config
 from lib.input.generic import Generic
 
 config = Config()
-generic = Generic()
+
 
 class PICO8():
     def __init__(self):
         self.system = 'pico8'
+        self.generic = Generic(system=self.system)
         self.sysfile = os.path.join(config.config_dir_systems,'%s.yaml' % self.system)
         self.sysconfig = config.read_config_system(self.sysfile)
         return
 
     def scan(self):
-        generic.mindata = {}
-        filelist = generic.create_list(self.sysconfig['rom_dir'], ['zip'])
+        self.generic.mindata = {}
+        filelist = self.generic.create_list(self.sysconfig['rom_dir'], ['zip'])
         filelist.update({'splore':"splore"})
-        generic.populate_cache(filelist=filelist, manufacturer="lexaloffle", year="20??", driver_status="Good")
-        return generic.mindata
+        self.generic.populate_cache(filelist=filelist, manufacturer="lexaloffle", year="20??", driver_status="Good")
+        return self.generic.mindata
