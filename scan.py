@@ -80,7 +80,8 @@ def main(args):
             exit()
 
     else:
-        print(f"system config not doing {system}")
+        print(f"system config not found {system}")
+        exit(1)
 
     #push dataset to output module
     output.collection(sysconfig)

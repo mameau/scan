@@ -61,11 +61,7 @@ class Config():
     def read_config_main(self):        
         self.config_main = (self.__readconfig(self.config_file))
 
-    def read_config_system(self, config, d=None):
-        if not os.path.exists(config):  
-            return
-
-        self.config_system = (self.__readconfig(config))
+    def inplace_string(self, v=None, d=None):
 
         inline_const = {
             'SYSTEM_NAME':self.config_system['name'],
@@ -82,21 +78,47 @@ class Config():
 
         inline_vars = {**inline_const, **inline_vars}
 
+        if v is not None:
+            for s in inline_vars.keys():
+                v = re.sub(s.upper(), str(inline_vars[s]), v)
+                for m in self.config_main.keys():
+                    v = re.sub(m.upper(), str(self.config_main[m]), v)
+        return v
+
+
+    def read_config_system(self, config, d=None):
+        if not os.path.exists(config):  
+            return
+
+        self.config_system = (self.__readconfig(config))
+
         # read it a second time so we use any inline vars
         self.config_system = (self.__readconfig(config))
 
-        # update dict from vars
-        for k in self.config_system:
-            v = str(self.config_system[k])
-            if v is not None:
-                for s in inline_vars.keys():
-                    v = re.sub(s.upper(), str(inline_vars[s]), v)
-                    for m in self.config_main.keys():
-                        v = re.sub(m.upper(), str(self.config_main[m]), v)
-                
-                self.config_system[k] = v
+        # update dict from vars, this sucks do it better
+        config_dict = {}
 
-        return self.config_system
+        for k in self.config_system:
+
+            v = self.config_system[k]
+
+            if isinstance(v, int):
+                config_dict[k] = self.inplace_string(str(v),d)
+
+            elif isinstance(v, list):
+                temp_list = []
+                for item in v:
+                    temp_list.append(self.inplace_string(str(item),d))
+                config_dict[k] = temp_list
+
+            elif isinstance(v, dict):
+                pass
+
+            else:
+                config_dict[k] = self.inplace_string(v,d)
+
+        self.config_system = config_dict
+        return self.config_system 
 
     def __readgenericconfig(self, config):
         """ read the ini into a dict object """

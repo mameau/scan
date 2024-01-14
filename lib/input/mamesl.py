@@ -17,25 +17,30 @@ class MAMESL():
         self.system = system
         self.sysfile = os.path.join(self.config.config_dir_systems,'%s.yaml' % system)
         self.sysconfig = self.config.read_config_system(self.sysfile, output.vars())
+        self.xml_roots = []
         return
 
     def getxml(self):
         """ read the mameinfo.xml into memory """
-        software_lists = []
-        for hashpath in self.hashpaths:
-            thashpath = os.path.expanduser(os.path.join(hashpath,"%s.xml" % self.system))
-            if os.path.exists(thashpath):
-                software_lists.append(thashpath)
 
-        for software_list in software_lists:
-            xmlfile = open(software_list,'r')
-            if xmlfile is not None:
-                logger._log("Received data from mame")
-                x = etree.parse(xmlfile)
-                return x.getroot()
-            else:
-                logger._log("No data received from mame")
-            return None
+        software_lists = []
+
+        key = 'soft_lists'
+        if key in self.sysconfig.keys() and self.sysconfig[key] is not None:
+            software_lists = self.sysconfig[key]
+
+        for hashpath in self.hashpaths:
+            for software_list in software_lists:
+                thashpath = os.path.expanduser(os.path.join(hashpath,"%s.xml" % software_list))
+                if os.path.exists(thashpath):
+                    xmlfile = open(thashpath,'r')
+                    if xmlfile is not None:
+                        logger._log("Received data from mame")
+                        x = etree.parse(xmlfile)
+                        self.xml_roots.append(x.getroot())
+                    else:
+                        logger._log("No data received from mame")
+        return
 
     def searchxml(self):
         """ use xpaths to find the game metadata """
@@ -45,86 +50,84 @@ class MAMESL():
         logger._log("Total titles found: %d" % len(terms))
 
         # read the mame xml
-        data = self.getxml()
+        self.getxml()
 
         # out data dict
         mindata = {}
 
         # find all the machines and check if we have them in our filelist)
-        if data is None:
-            return mindata
-        machine_data = data.findall('software')
+    
+        for data in self.xml_roots:
+            machine_data = data.findall('software')
 
-        for element in machine_data:
-            if element.attrib['name'] in terms.keys():
-                game_name = element.attrib['name']
-                filename = terms[element.attrib['name']]
-                try:
-                    description = element.xpath('description')[0].text
-                except:
-                    description = ""
+            for element in machine_data:
+                if element.attrib['name'] in terms.keys():
+                    game_name = element.attrib['name']
+                    filename = terms[element.attrib['name']]
+                    try:
+                        description = element.xpath('description')[0].text
+                    except:
+                        description = ""
 
-                try:
-                    year = element.xpath('year')[0].text
-                except:
-                    year = "????"
-                try:
-                    manufacturer = element.xpath('publisher')[0].text
-                except:
-                    manufacturer = "unknown"
-                try:
-                    driver_status = element.xpath('driver/@status')[0]
-                except:
-                    driver_status = "good"
-                try:
-                    display_orientation = element.xpath('display[@tag="screen"]/@rotate')[0]
-                except:
-                    display_orientation = 0 
-                try:
-                    players = element.xpath('input/@players')[0]
-                except:
-                    players = 0 
+                    try:
+                        year = element.xpath('year')[0].text
+                    except:
+                        year = "????"
+                    try:
+                        manufacturer = element.xpath('publisher')[0].text
+                    except:
+                        manufacturer = "unknown"
+                    try:
+                        driver_status = element.xpath('driver/@status')[0]
+                    except:
+                        driver_status = "good"
+                    try:
+                        display_orientation = element.xpath('display[@tag="screen"]/@rotate')[0]
+                    except:
+                        display_orientation = 0 
+                    try:
+                        players = element.xpath('input/@players')[0]
+                    except:
+                        players = 0 
 
+                    game_data = {'name':'','ext':''}
+                    dataareas = element.xpath('part/dataarea')
+                    for dataarea in dataareas:
+                        roms = dataarea.findall('rom')
 
-                game_data = {'name':'','ext':''}
-                dataareas = element.xpath('part/dataarea')
-                for dataarea in dataareas:
-                    roms = dataarea.findall('rom')
+                        if len(roms) == 1:
+                            for rom in roms:
 
-                    if len(roms) == 1:
-                        for rom in roms:
+                                if "name" in rom.attrib:
+                                    rom_ext = os.path.splitext(rom.attrib['name'])[1][1:] or None
 
-                            if "name" in rom.attrib:
-                                rom_ext = os.path.splitext(rom.attrib['name'])[1][1:] or None
+                                    # check if we have a compatible rom extension
+                                    # eventually have byte handlers here
+                                    if not rom_ext in self.extensions:
+                                        rom_ext = self.extensions[0]
 
-                                # check if we have a compatible rom extension
-                                # eventually have byte handlers here
-                                if not rom_ext in self.extensions:
-                                    rom_ext = self.extensions[0]
+                                    game_data['name'] = rom.attrib['name']
+                                    game_data['ext'] = rom_ext
 
-                                game_data['name'] = rom.attrib['name']
-                                game_data['ext'] = rom_ext
+                                    #logger._log("%s | %s | %s.%s" % (rom.attrib["name"], game_name, description, self.sysconfig['extension']))
 
-                                #logger._log("%s | %s | %s.%s" % (rom.attrib["name"], game_name, description, self.sysconfig['extension']))
+                        else:
+                            #logger._log("We do not support multi-chip roms at the moment")
+                            pass
 
-                    else:
-                        #logger._log("We do not support multi-chip roms at the moment")
-                        pass
-
-
-                mindata[game_name] = {
-                    'name' : description,
-                    'description' : description,
-                    'name_rom' : "%s" % game_name,
-                    'name_pretty' : "%s (%s)" % (description, game_name),
-                    'name_sl'     : game_data["name"],
-                    'rom_abspath' : terms[game_name],
-                    'year' : year,
-                    'manufacturer' : manufacturer,
-                    'driver_status' : driver_status,
-                    'display_orientation' : display_orientation,
-                    'players' : players,
-                }
+                    mindata[game_name] = {
+                        'name' : description,
+                        'description' : description,
+                        'name_rom' : "%s" % game_name,
+                        'name_pretty' : "%s (%s)" % (description, game_name),
+                        'name_sl'     : game_data["name"],
+                        'rom_abspath' : terms[game_name],
+                        'year' : year,
+                        'manufacturer' : manufacturer,
+                        'driver_status' : driver_status,
+                        'display_orientation' : display_orientation,
+                        'players' : players,
+                    }
 
         return mindata
 
