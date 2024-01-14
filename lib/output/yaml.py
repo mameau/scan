@@ -34,6 +34,6 @@ class YAML():
             logger._log("Writing %d items to cache file %s" % (len(self.data), outfile))
 
             with open(outfile,'w') as f:
-                yaml.dump(self.data, f)
+                yaml.dump(self.data, f, default_flow_style=False, sort_keys=False)
         else:
             logger._log("Not writing cache file, no entries to write")
