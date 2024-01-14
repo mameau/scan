@@ -7,11 +7,9 @@ from lib.config import Config
 systems = ['mame', 'mamesl','generic','pico8']
 output_modes = ['mister', 'pegasus','json','yaml','screen']
 config_paths = ['cfg','_cache']
-modes = ['dir','file','file-parent']
 
 def main(args):
     system = args.system
-    mode = args.mode
     output_mode = args.output_mode
     cfg = args.cfg
 
@@ -64,7 +62,7 @@ def main(args):
         ### File
         if system == "generic": 
             from lib.input.generic import Generic
-            generic = Generic(mode=mode, system=cfg, output=output)
+            generic = Generic(system=cfg, output=output)
             dataset = generic.scan()
             sysconfig = generic.sysconfig
             system = cfg
@@ -72,7 +70,7 @@ def main(args):
         ### MAME Software Lists
         elif system == "mamesl":
             from lib.input.mamesl import MAMESL
-            mamesl = MAMESL(mode=mode, system=cfg, output=output)
+            mamesl = MAMESL(system=cfg, output=output)
             dataset = mamesl.scan()
             sysconfig = mamesl.sysconfig
             system = cfg
@@ -93,7 +91,6 @@ if __name__ == "__main__":
     # input
     parser_input.add_argument('--system', required=True, type=str, default=None, help='scan a system', choices=systems)
     parser_input.add_argument('--cfg', type=str, help='system cfg')
-    parser_input.add_argument('--mode', type=str, default="file" , help='software list match mode', choices=modes)
     # output
     parser_output.add_argument('--output-mode', type=str, default="json" , help='output mode', choices=output_modes)
     args = parser.parse_args()

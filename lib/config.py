@@ -17,6 +17,8 @@ class Config():
         self.emulator = {}
         self.setup = {}
         self.read_config_main()
+        self.valid_modes = ['dir','file','file-parent']
+
         return
 
 
@@ -41,6 +43,11 @@ class Config():
 
         if "cache_dir" in self.confdict.keys():
             self.config_dir_cache = os.path.expanduser(self.confdict['cache_dir'])
+
+        if "mode" in self.confdict.keys():
+            if self.confdict['mode'] not in self.valid_modes:
+                print(f"Configuration is using an incompatible mode: {self.confdict['mode'] }")
+                return
 
         for path in [self.config_dir_systems, self.config_dir_cache]:
             if not os.path.exists(path):

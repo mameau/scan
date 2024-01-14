@@ -5,9 +5,8 @@ import re
 from lib.config import Config
 
 class Generic():
-    def __init__(self, mode='file', system=None, output=None):
+    def __init__(self, system=None, output=None):
         self.config = Config()
-        self.mode = mode
         self.sysfile = os.path.join(self.config.config_dir_systems,'%s.yaml' % system)
         if output is not None:
             self.sysconfig = self.config.read_config_system(self.sysfile, output.vars())
@@ -19,13 +18,13 @@ class Generic():
         filelist = {}
         e = [x.strip(' ') for x in e]
         for root, dirs, files in os.walk(os.path.expanduser(p)):
-            if self.mode == 'dir':
+            if self.sysconfig["mode"] == 'dir':
                 for dirname in dirs:
                     abspath = os.path.join(root,dirname)
                     name = dirname
                     if os.path.exists(abspath):
                         filelist[name] = abspath
-            elif self.mode == 'file':
+            elif self.sysconfig["mode"] == 'file':
                 for filename in files:
                     abspath = os.path.join(root,filename)
                     ext = os.path.splitext(abspath)[-1]
@@ -37,7 +36,7 @@ class Generic():
                         name = '. '.join(os.path.splitext(filename)[:-1])
                         if os.path.exists(abspath):
                             filelist[name] = abspath
-            elif self.mode == 'file-parent':
+            elif self.sysconfig["mode"] == 'file-parent':
                 for filename in files:
                     abspath = os.path.join(root,filename)
                     ext = os.path.splitext(abspath)[-1]

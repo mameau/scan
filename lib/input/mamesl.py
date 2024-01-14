@@ -12,11 +12,9 @@ from lib.config import Config
 logger = Logger()
 
 class MAMESL():
-    def __init__(self, mode='file', system=None, output=None):
+    def __init__(self, system=None, output=None):
         self.config = Config()
-
         self.system = system
-        self.mode = mode
         self.sysfile = os.path.join(self.config.config_dir_systems,'%s.yaml' % system)
         self.sysconfig = self.config.read_config_system(self.sysfile, output.vars())
         return
@@ -137,19 +135,19 @@ class MAMESL():
         abspath = ""
         name = ""
         for root, dirs, files in os.walk(path):
-            if self.mode == 'dir':
+            if self.sysconfig["mode"] == 'dir':
                 for dirname in dirs:
                     abspath = os.path.join(root,dirname)
                     name = dirname
                     if os.path.exists(abspath):
                         filelist[name] = abspath
-            elif self.mode == 'file':
+            elif self.sysconfig["mode"] == 'file':
                 for filename in files:
                     abspath = os.path.join(root,filename)
                     name = os.path.splitext(filename)[0]
                     if os.path.exists(abspath):
                         filelist[name] = abspath
-            elif self.mode == 'file-parent':
+            elif self.sysconfig["mode"] == 'file-parent':
                 for filename in files:
                     abspath = os.path.join(root,filename)
                     name = os.path.basename(root)
