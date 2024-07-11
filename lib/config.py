@@ -107,7 +107,7 @@ class Config():
                 lines = f.readlines()
                 for line in lines:
                     if not re.match('(#| )',line[0]):
-                        match = re.match('^([a-z_]+)[\s]+(.*)$', line)
+                        match = re.match('^([a-z_]+)[ ]+(.*)$', line)
                         if match is not None:
                             k = match.group(1)
                             v = self.expand_user(match.group(2))
